@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "lineblock",
+	"version": "${version}",
+	"name": "Line Block",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/lineblock/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.spichka.lineblock.LineBlock"
+		],
+		"fabric-datagen": [
+			"com.spichka.lineblock.LineBlockDataGenerator"
+		]
+	},
+	"mixins": [
+		"lineblock.mixins.json"
+	],
+	"client": [
+		"com.spichka.lineblock.LineBlockClient"
+	],
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.20.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
