@@ -12,5 +12,6 @@ public class LineBlock implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
+		RunCommand.register();
 	}
 }
