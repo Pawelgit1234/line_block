@@ -12,6 +12,7 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
 public class RunCommand {
@@ -31,10 +32,9 @@ public class RunCommand {
         BlockPos pos = net.minecraft.command.argument.BlockPosArgumentType.getBlockPos(context, "x");
         World world = source.getWorld();
 
-        Lexer lexer = new Lexer(world, pos);
+        LineBlock.LOGGER.info("Lexer");
+        Lexer lexer = new Lexer(world, pos, Direction.EAST);
         List<Token> tokens = lexer.tokenize();
-
-        world.getServer().sendMessage(Text.of("Starts from Block: " + pos));
 
         return Command.SINGLE_SUCCESS;
     }

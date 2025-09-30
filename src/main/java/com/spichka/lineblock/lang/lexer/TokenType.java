@@ -14,7 +14,8 @@ public enum TokenType {
     SIN, COS, TAN, ASIN, ACOS, ATAN, ABS, CEIL, FLOOR, // math func
     PI, E, // constants
     COMMAND, WAIT, INPUT, PRINT, GOTO, STOP, PLACEBLOCK, // other
-    LBRACE, RBRACE, IF, ELSE; // if
+    LBRACE, RBRACE, IF, ELSE, // if
+    INT_ASSIGN, FLOAT_ASSIGN, STRING_ASSIGN, BOOL_ASSIGN, VAR_INDEX, USE_VAR; // variables
 
     private static final HashMap<Block, TokenType> BLOCK_TO_TYPE = new HashMap<>();
 
@@ -82,6 +83,14 @@ public enum TokenType {
         BLOCK_TO_TYPE.put(Blocks.STRIPPED_OAK_WOOD, ELSE);
         BLOCK_TO_TYPE.put(Blocks.OAK_PLANKS, LBRACE);
         BLOCK_TO_TYPE.put(Blocks.BIRCH_PLANKS, RBRACE);
+
+        // variables
+        BLOCK_TO_TYPE.put(Blocks.DIAMOND_BLOCK, INT_ASSIGN);
+        BLOCK_TO_TYPE.put(Blocks.GOLD_BLOCK, FLOAT_ASSIGN);
+        BLOCK_TO_TYPE.put(Blocks.IRON_BLOCK, STRING_ASSIGN);
+        BLOCK_TO_TYPE.put(Blocks.EMERALD_BLOCK, BOOL_ASSIGN);
+        BLOCK_TO_TYPE.put(Blocks.CHISELED_STONE_BRICKS, USE_VAR);
+        BLOCK_TO_TYPE.put(Blocks.SMOOTH_STONE, VAR_INDEX);
     }
     
     public static TokenType fromBlock(Block block) {
