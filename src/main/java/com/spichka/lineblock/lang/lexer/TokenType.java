@@ -5,7 +5,7 @@ import java.util.HashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 
-public enum Types {
+public enum TokenType {
     PLUS, MINUS, MUL, DIV, MOD, POW, // math
     BIT_AND, BIT_OR, BIT_XOR, BIT_NOT, SHL, SHR, // bit
     ZERO, ONE, // 0 1
@@ -13,10 +13,10 @@ public enum Types {
     EQ, NE, GT, LT, GE, LE, // equation
     SIN, COS, TAN, ASIN, ACOS, ATAN, ABS, CEIL, FLOOR, // math func
     PI, E, // constants
-    COMMAND, WAIT, INPUT, PRINT, BIG_GOTO, SMALL_GOTO, STOP, PLACEBLOCK, // other
+    COMMAND, WAIT, INPUT, PRINT, GOTO, STOP, PLACEBLOCK, // other
     LBRACE, RBRACE, IF, ELSE; // if
 
-    private static final HashMap<Block, Types> BLOCK_TO_TYPE = new HashMap<>();
+    private static final HashMap<Block, TokenType> BLOCK_TO_TYPE = new HashMap<>();
 
     static {
         // math
@@ -73,8 +73,7 @@ public enum Types {
         BLOCK_TO_TYPE.put(Blocks.SAND, WAIT);
         BLOCK_TO_TYPE.put(Blocks.PRISMARINE_BRICKS, INPUT);
         BLOCK_TO_TYPE.put(Blocks.DARK_PRISMARINE, PRINT);
-        BLOCK_TO_TYPE.put(Blocks.CRYING_OBSIDIAN, BIG_GOTO);
-        BLOCK_TO_TYPE.put(Blocks.OBSIDIAN, SMALL_GOTO);
+        BLOCK_TO_TYPE.put(Blocks.OBSIDIAN, GOTO);
         BLOCK_TO_TYPE.put(Blocks.TNT, STOP);
         BLOCK_TO_TYPE.put(Blocks.PISTON, PLACEBLOCK);
 
@@ -85,7 +84,7 @@ public enum Types {
         BLOCK_TO_TYPE.put(Blocks.BIRCH_PLANKS, RBRACE);
     }
     
-    public static Types fromBlock(Block block) {
+    public static TokenType fromBlock(Block block) {
         return BLOCK_TO_TYPE.getOrDefault(block, null);
     }
 }

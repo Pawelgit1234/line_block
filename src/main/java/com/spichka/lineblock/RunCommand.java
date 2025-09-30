@@ -1,7 +1,11 @@
 package com.spichka.lineblock;
 
+import java.util.List;
+
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
+import com.spichka.lineblock.lang.lexer.Lexer;
+import com.spichka.lineblock.lang.lexer.Token;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
@@ -26,6 +30,9 @@ public class RunCommand {
 
         BlockPos pos = net.minecraft.command.argument.BlockPosArgumentType.getBlockPos(context, "x");
         World world = source.getWorld();
+
+        Lexer lexer = new Lexer(world, pos);
+        List<Token> tokens = lexer.tokenize();
 
         world.getServer().sendMessage(Text.of("Starts from Block: " + pos));
 
