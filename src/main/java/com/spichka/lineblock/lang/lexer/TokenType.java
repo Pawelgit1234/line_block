@@ -6,15 +6,16 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 
 public enum TokenType {
-    PLUS, MINUS, MUL, DIV, MOD, POW, // math
+    PLUS, MINUS, MUL, DIV, MOD, POW, RPAR, LPAR, // math
     BIT_AND, BIT_OR, BIT_XOR, BIT_NOT, SHL, SHR, // bit
     ZERO, ONE, // 0 1
     AND, OR, NOT, XOR, // logic
     EQ, NE, GT, LT, GE, LE, // equation
     SIN, COS, TAN, ASIN, ACOS, ATAN, ABS, CEIL, FLOOR, // math func
     PI, E, // constants
-    COMMAND, WAIT, INPUT, PRINT, GOTO, STOP, PLACEBLOCK, // other
-    LBRACE, RBRACE, IF, ELSE, // if
+    COMMAND, STOP, PRINT, GOTO, PLACEBLOCK, // other
+    IF, // if
+    FIRST_ARGUMENT, SECOND_ARGUMENT, THRID_ARGUMENT, FOURTH_ARGUMENT, // argument
     INT_ASSIGN, FLOAT_ASSIGN, STRING_ASSIGN, BOOL_ASSIGN, VAR_INDEX, USE_VAR; // variables
 
     private static final HashMap<Block, TokenType> BLOCK_TO_TYPE = new HashMap<>();
@@ -27,6 +28,8 @@ public enum TokenType {
         BLOCK_TO_TYPE.put(Blocks.REDSTONE_ORE, DIV);
         BLOCK_TO_TYPE.put(Blocks.EMERALD_ORE, MOD);
         BLOCK_TO_TYPE.put(Blocks.LAPIS_ORE, POW);
+        BLOCK_TO_TYPE.put(Blocks.STRIPPED_CRIMSON_HYPHAE, LPAR);
+        BLOCK_TO_TYPE.put(Blocks.CRIMSON_HYPHAE, RPAR);
 
         // bit
         BLOCK_TO_TYPE.put(Blocks.DEEPSLATE_IRON_ORE, BIT_AND);
@@ -71,8 +74,6 @@ public enum TokenType {
 
         // other
         BLOCK_TO_TYPE.put(Blocks.COMMAND_BLOCK, COMMAND);
-        BLOCK_TO_TYPE.put(Blocks.SAND, WAIT);
-        BLOCK_TO_TYPE.put(Blocks.PRISMARINE_BRICKS, INPUT);
         BLOCK_TO_TYPE.put(Blocks.DARK_PRISMARINE, PRINT);
         BLOCK_TO_TYPE.put(Blocks.OBSIDIAN, GOTO);
         BLOCK_TO_TYPE.put(Blocks.TNT, STOP);
@@ -80,9 +81,12 @@ public enum TokenType {
 
         // if
         BLOCK_TO_TYPE.put(Blocks.OAK_WOOD, IF);
-        BLOCK_TO_TYPE.put(Blocks.STRIPPED_OAK_WOOD, ELSE);
-        BLOCK_TO_TYPE.put(Blocks.OAK_PLANKS, LBRACE);
-        BLOCK_TO_TYPE.put(Blocks.BIRCH_PLANKS, RBRACE);
+
+        // arguments
+        BLOCK_TO_TYPE.put(Blocks.GLASS, FIRST_ARGUMENT);
+        BLOCK_TO_TYPE.put(Blocks.TINTED_GLASS, SECOND_ARGUMENT);
+        BLOCK_TO_TYPE.put(Blocks.RED_STAINED_GLASS, THRID_ARGUMENT);
+        BLOCK_TO_TYPE.put(Blocks.LIME_STAINED_GLASS, FOURTH_ARGUMENT);
 
         // variables
         BLOCK_TO_TYPE.put(Blocks.DIAMOND_BLOCK, INT_ASSIGN);

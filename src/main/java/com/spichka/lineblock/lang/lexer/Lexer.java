@@ -3,8 +3,6 @@ package com.spichka.lineblock.lang.lexer;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.spichka.lineblock.LineBlock;
-
 import net.minecraft.state.property.Properties;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -28,10 +26,12 @@ public class Lexer {
 
         Token token;
         while ((token = nextToken()) != null) {
-            LineBlock.LOGGER.info("2");
             tokens.add(token);
 
             if (
+                token.type == TokenType.PRINT ||
+                token.type == TokenType.GOTO ||
+                token.type == TokenType.PLACEBLOCK ||
                 token.type == TokenType.INT_ASSIGN ||
                 token.type == TokenType.FLOAT_ASSIGN ||
                 token.type == TokenType.STRING_ASSIGN ||
@@ -41,16 +41,17 @@ public class Lexer {
                 for (Direction dir : Direction.values()) {
                     if (dir == direction || dir == direction.getOpposite())
                         continue;
+                    BlockPos neighborPos = token.pos.offset(dir);
+                    BlockState state = world.getBlockState(neighborPos);
+                    TokenType neighborTokenType = TokenType.fromBlock(state.getBlock());
 
-                    BlockPos neighborPos = currentPos.offset(dir);
-                    Lexer lexer = new Lexer(world, neighborPos, dir);
-                    tokens.addAll(lexer.tokenize());
+                    if (neighborTokenType != null) {
+                        Lexer lexer = new Lexer(world, neighborPos, dir);
+                        tokens.addAll(lexer.tokenize());
+                    }
                 }
             }
         }
-
-        for (Token t : tokens)
-            LineBlock.LOGGER.info(t.toString());
 
         return tokens;
     }
@@ -58,16 +59,13 @@ public class Lexer {
     private Token nextToken() {
         BlockState state = world.getBlockState(currentPos);
         TokenType type = TokenType.fromBlock(state.getBlock());
-        LineBlock.LOGGER.info("1");
 
         if (type == null) {
             if (state.isOf(Blocks.OBSERVER)) {
-                LineBlock.LOGGER.info("3");
                 direction = state.get(Properties.FACING);
                 currentPos = currentPos.offset(direction);
                 return nextToken();
             }
-            LineBlock.LOGGER.info("4");
             return null;
         }
 
