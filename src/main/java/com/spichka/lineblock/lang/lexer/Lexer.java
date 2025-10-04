@@ -36,7 +36,8 @@ public class Lexer {
                 token.type == TokenType.FLOAT_ASSIGN ||
                 token.type == TokenType.STRING_ASSIGN ||
                 token.type == TokenType.BOOL_ASSIGN ||
-                token.type == TokenType.USE_VAR
+                token.type == TokenType.USE_VAR ||
+                token.type == TokenType.IF
             ) {
                 for (Direction dir : Direction.values()) {
                     if (dir == direction || dir == direction.getOpposite())

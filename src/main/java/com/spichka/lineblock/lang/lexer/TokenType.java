@@ -14,7 +14,7 @@ public enum TokenType {
     SIN, COS, TAN, ASIN, ACOS, ATAN, ABS, CEIL, FLOOR, // math func
     PI, E, // constants
     COMMAND, STOP, PRINT, GOTO, PLACEBLOCK, // other
-    IF, // if
+    IF, BRANCH_END, // if
     FIRST_ARGUMENT, SECOND_ARGUMENT, THRID_ARGUMENT, FOURTH_ARGUMENT, // argument
     INT_ASSIGN, FLOAT_ASSIGN, STRING_ASSIGN, BOOL_ASSIGN, VAR_INDEX, USE_VAR; // variables
 
@@ -81,6 +81,7 @@ public enum TokenType {
 
         // if
         BLOCK_TO_TYPE.put(Blocks.OAK_WOOD, IF);
+        BLOCK_TO_TYPE.put(Blocks.STRIPPED_OAK_WOOD, BRANCH_END);
 
         // arguments
         BLOCK_TO_TYPE.put(Blocks.GLASS, FIRST_ARGUMENT);

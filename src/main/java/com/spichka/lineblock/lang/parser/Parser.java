@@ -3,6 +3,7 @@ package com.spichka.lineblock.lang.parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.spichka.lineblock.LineBlock;
 import com.spichka.lineblock.lang.lexer.Token;
 import com.spichka.lineblock.lang.lexer.TokenType;
 import com.spichka.lineblock.lang.parser.ast.AstNode;
@@ -10,6 +11,7 @@ import com.spichka.lineblock.lang.parser.ast.BinaryOpNode;
 import com.spichka.lineblock.lang.parser.ast.BlockNode;
 import com.spichka.lineblock.lang.parser.ast.CommandNode;
 import com.spichka.lineblock.lang.parser.ast.ConstantNode;
+import com.spichka.lineblock.lang.parser.ast.IfNode;
 import com.spichka.lineblock.lang.parser.ast.LiteralNode;
 import com.spichka.lineblock.lang.parser.ast.PlaceBlockNode;
 import com.spichka.lineblock.lang.parser.ast.UnaryOpNode;
@@ -77,7 +79,7 @@ public class Parser {
         } else if (match(List.of(TokenType.PLACEBLOCK)) != null) {
             return parsePlaceBlock();
         } else if (match(List.of(TokenType.IF)) != null) {
-            // return parseIf();
+            return parseIf();
         }
 
         // just skip
@@ -212,8 +214,39 @@ public class Parser {
         return new PlaceBlockNode(placeX, placeY, placeZ, world.getBlockState(pos).getBlock());
     }
 
+    private AstNode parseIfBranche() {
+        BlockNode root = new BlockNode();
 
-    // private AstNode parseIf() {
-    
-    // }
+        while (match(List.of(TokenType.BRANCH_END)) == null) {
+            AstNode codeLineNode = parseLine();
+            root.addStatement(codeLineNode);
+        }
+
+        return root;
+    }
+
+    private AstNode parseIf() {
+        AstNode conditionNode = null;
+        AstNode thenBranchNode = null;
+        AstNode elseBranchNode = null;
+
+        for (int i = 0; i < 3; i++) {
+            if (match(List.of(
+                TokenType.FIRST_ARGUMENT, TokenType.SECOND_ARGUMENT,
+                TokenType.THRID_ARGUMENT
+            )) != null) {
+                Token argToken = currentToken;
+
+                switch (argToken.type) {
+                    case FIRST_ARGUMENT -> conditionNode = parseExpression();
+                    case SECOND_ARGUMENT -> thenBranchNode = parseIfBranche();
+                    case THRID_ARGUMENT -> elseBranchNode = parseIfBranche();
+                }
+            } else {
+                break; // if no else, then break
+            }
+        }
+
+        return new IfNode(conditionNode, thenBranchNode, elseBranchNode);
+    }
 }
