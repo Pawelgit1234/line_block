@@ -11,16 +11,23 @@ import com.spichka.lineblock.lang.parser.ast.BlockNode;
 import com.spichka.lineblock.lang.parser.ast.CommandNode;
 import com.spichka.lineblock.lang.parser.ast.ConstantNode;
 import com.spichka.lineblock.lang.parser.ast.LiteralNode;
+import com.spichka.lineblock.lang.parser.ast.PlaceBlockNode;
 import com.spichka.lineblock.lang.parser.ast.UnaryOpNode;
 import com.spichka.lineblock.lang.parser.ast.VariableNode;
 
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.World;
+
 public class Parser {
     private final List<Token> tokens;
+    private final World world;
     private Token currentToken;
     private int position;
 
-    public Parser(List<Token> tokens) {
+    public Parser(World world, List<Token> tokens) {
         this.tokens = tokens;
+        this.world = world;
         this.position = 0;
     }
 
@@ -65,10 +72,12 @@ public class Parser {
         } else if (match(List.of(TokenType.COMMAND, TokenType.STOP)) != null) {
             return new CommandNode(currentToken);
         } else if (match(List.of(TokenType.PRINT, TokenType.GOTO)) != null) {
+            Token operator = currentToken;
+            return new UnaryOpNode(operator, parseExpression());
         } else if (match(List.of(TokenType.PLACEBLOCK)) != null) {
-        
+            return parsePlaceBlock();
         } else if (match(List.of(TokenType.IF)) != null) {
-        
+            // return parseIf();
         }
 
         // just skip
@@ -81,20 +90,34 @@ public class Parser {
         Token assign = currentToken;
 
         VariableNode variableNode;
+        AstNode expressionNode;
         if (match(List.of(TokenType.VAR_INDEX)) != null) {
             List<Token> varIndexTokens = new ArrayList<Token>();
             varIndexTokens.add(currentToken);
             varIndexTokens.addAll(collectTokens(List.of(TokenType.VAR_INDEX)));
             variableNode = new VariableNode(varIndexTokens);
+            expressionNode = parseExpression();
         } else {
-            
+            expressionNode = parseExpression();
+            variableNode = new VariableNode(collectTokens(List.of(TokenType.VAR_INDEX)));
         }
 
-        BinaryOpNode binaryOpNode = new BinaryOpNode(assign, variableNode, null);
+        BinaryOpNode binaryOpNode = new BinaryOpNode(assign, variableNode, expressionNode);
         return binaryOpNode;
     }
 
     private AstNode parseTerm() {
+        AstNode node = parseFactor();
+
+        while (match(List.of(
+            TokenType.MUL, TokenType.DIV, TokenType.MOD, TokenType.POW,
+            TokenType.BIT_AND, TokenType.BIT_OR, TokenType.BIT_XOR, TokenType.SHL, TokenType.SHR
+        )) != null) {
+            Token token = currentToken;
+            node = new BinaryOpNode(token, node, parseFactor());
+        }
+
+        return node;
     }
 
     private AstNode parseFactor() {
@@ -117,6 +140,8 @@ public class Parser {
         )) != null) {
             Token type = currentToken;
             return new LiteralNode(type, collectTokens(List.of(TokenType.ZERO, TokenType.ONE)));
+        } else if (match(List.of(TokenType.USE_VAR)) != null) {
+            return new VariableNode(collectTokens(List.of(TokenType.VAR_INDEX)));
         } else if (match(List.of(TokenType.PI, TokenType.E)) != null) {
             return new ConstantNode(currentToken);
         }
@@ -152,4 +177,43 @@ public class Parser {
         return collected;
     }
 
+    private AstNode parsePlaceBlock() {
+        AstNode placeX = null;
+        AstNode placeY = null;
+        AstNode placeZ = null;
+
+        BlockPos placeBlockPos = currentToken.pos;
+        BlockPos fourthArgumentPos = null;
+
+        for (int i = 0; i < 4; i++) {
+            if (match(List.of(
+                TokenType.FIRST_ARGUMENT, TokenType.SECOND_ARGUMENT,
+                TokenType.THRID_ARGUMENT, TokenType.FOURTH_ARGUMENT
+            )) != null) {
+                Token argToken = currentToken;
+
+                switch (argToken.type) {
+                    case FIRST_ARGUMENT -> placeX = parseExpression();
+                    case SECOND_ARGUMENT -> placeY = parseExpression();
+                    case THRID_ARGUMENT -> placeZ = parseExpression();
+                    case FOURTH_ARGUMENT -> fourthArgumentPos = argToken.pos;
+                }
+            } else {
+                position++; // if fourth argument and tokenized block
+                i--;
+            }
+        }
+
+        int x = fourthArgumentPos.getX() + (fourthArgumentPos.getX() - placeBlockPos.getX());
+        int y = fourthArgumentPos.getY() + (fourthArgumentPos.getY() - placeBlockPos.getY());
+        int z = fourthArgumentPos.getZ() + (fourthArgumentPos.getZ() - placeBlockPos.getZ());
+
+        BlockPos pos = new BlockPos(new Vec3i(x, y, z));
+        return new PlaceBlockNode(placeX, placeY, placeZ, world.getBlockState(pos).getBlock());
+    }
+
+
+    // private AstNode parseIf() {
+    
+    // }
 }

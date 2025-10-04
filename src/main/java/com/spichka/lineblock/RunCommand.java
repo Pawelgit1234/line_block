@@ -40,7 +40,7 @@ public class RunCommand {
             LineBlock.LOGGER.info(t.toString());
 
         LineBlock.LOGGER.info("2. Parser");
-        Parser parser = new Parser(tokens);
+        Parser parser = new Parser(world, tokens);
         AstNode root = parser.parse();
         LineBlock.LOGGER.info(root.toString());
 
