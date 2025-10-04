@@ -3,7 +3,7 @@ package com.spichka.lineblock.lang.parser;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.spichka.lineblock.LineBlock;
+import com.spichka.lineblock.lang.exceptions.LineBlockException;
 import com.spichka.lineblock.lang.lexer.Token;
 import com.spichka.lineblock.lang.lexer.TokenType;
 import com.spichka.lineblock.lang.parser.ast.AstNode;
@@ -59,9 +59,8 @@ public class Parser {
 
     private Token require(List<TokenType> types) {
         Token token = match(types);
-        if (token != null)
-            // TODO: Error
-            return null;
+        if (token == null)
+            throw new LineBlockException("One of " + types + " required", currentToken);
         return token;
     }
 
@@ -82,10 +81,7 @@ public class Parser {
             return parseIf();
         }
 
-        // just skip
-        // TODO: Error
-        position++;
-        return null;
+        throw new LineBlockException("Wrong block", currentToken);
     }
 
     private AstNode parseVariable() {
@@ -132,23 +128,26 @@ public class Parser {
         )) != null) {
             Token operator = currentToken;
             return new UnaryOpNode(operator, parseFactor());
+
         } else if (match(List.of(TokenType.LPAR)) != null) {
             AstNode node = parseExpression();
             require(List.of(TokenType.RPAR));
             return node;
+
         } else if (match(List.of(
             TokenType.INT_ASSIGN, TokenType.FLOAT_ASSIGN,
             TokenType.STRING_ASSIGN, TokenType.BOOL_ASSIGN
         )) != null) {
             Token type = currentToken;
             return new LiteralNode(type, collectTokens(List.of(TokenType.ZERO, TokenType.ONE)));
+
         } else if (match(List.of(TokenType.USE_VAR)) != null) {
             return new VariableNode(collectTokens(List.of(TokenType.VAR_INDEX)));
+
         } else if (match(List.of(TokenType.PI, TokenType.E)) != null) {
             return new ConstantNode(currentToken);
         }
-        // TODO: error
-        return null;
+        throw new LineBlockException("Expected another value", currentToken);
     }
 
     private AstNode parseExpression() {
@@ -199,6 +198,7 @@ public class Parser {
                     case SECOND_ARGUMENT -> placeY = parseExpression();
                     case THRID_ARGUMENT -> placeZ = parseExpression();
                     case FOURTH_ARGUMENT -> fourthArgumentPos = argToken.pos;
+                    default -> {}
                 }
             } else {
                 position++; // if fourth argument and tokenized block
@@ -241,6 +241,7 @@ public class Parser {
                     case FIRST_ARGUMENT -> conditionNode = parseExpression();
                     case SECOND_ARGUMENT -> thenBranchNode = parseIfBranche();
                     case THRID_ARGUMENT -> elseBranchNode = parseIfBranche();
+                    default -> {}
                 }
             } else {
                 break; // if no else, then break
