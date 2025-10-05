@@ -16,7 +16,7 @@ public enum TokenType {
     COMMAND, STOP, PRINT, GOTO, PLACEBLOCK, // other
     IF, BRANCH_END, // if
     FIRST_ARGUMENT, SECOND_ARGUMENT, THRID_ARGUMENT, FOURTH_ARGUMENT, // argument
-    INT_ASSIGN, FLOAT_ASSIGN, STRING_ASSIGN, BOOL_ASSIGN, VAR_INDEX, USE_VAR; // variables
+    INT, FLOAT, STRING, BOOL, VAR_INDEX, USE_VAR; // variables
 
     private static final HashMap<Block, TokenType> BLOCK_TO_TYPE = new HashMap<>();
 
@@ -90,10 +90,10 @@ public enum TokenType {
         BLOCK_TO_TYPE.put(Blocks.LIME_STAINED_GLASS, FOURTH_ARGUMENT);
 
         // variables
-        BLOCK_TO_TYPE.put(Blocks.DIAMOND_BLOCK, INT_ASSIGN);
-        BLOCK_TO_TYPE.put(Blocks.GOLD_BLOCK, FLOAT_ASSIGN);
-        BLOCK_TO_TYPE.put(Blocks.IRON_BLOCK, STRING_ASSIGN);
-        BLOCK_TO_TYPE.put(Blocks.EMERALD_BLOCK, BOOL_ASSIGN);
+        BLOCK_TO_TYPE.put(Blocks.DIAMOND_BLOCK, INT);
+        BLOCK_TO_TYPE.put(Blocks.GOLD_BLOCK, FLOAT);
+        BLOCK_TO_TYPE.put(Blocks.IRON_BLOCK, STRING);
+        BLOCK_TO_TYPE.put(Blocks.EMERALD_BLOCK, BOOL);
         BLOCK_TO_TYPE.put(Blocks.CHISELED_STONE_BRICKS, USE_VAR);
         BLOCK_TO_TYPE.put(Blocks.SMOOTH_STONE, VAR_INDEX);
     }

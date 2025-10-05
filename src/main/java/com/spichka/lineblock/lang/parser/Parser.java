@@ -33,7 +33,7 @@ public class Parser {
         this.position = 0;
     }
 
-    public AstNode parse() {
+    public BlockNode parse() {
         BlockNode root = new BlockNode();
 
         while (position < tokens.size()) {
@@ -66,8 +66,8 @@ public class Parser {
 
     private AstNode parseLine() {
         if (match(List.of(
-            TokenType.INT_ASSIGN, TokenType.STRING_ASSIGN,
-            TokenType.FLOAT_ASSIGN, TokenType.BOOL_ASSIGN
+            TokenType.INT, TokenType.STRING,
+            TokenType.FLOAT, TokenType.BOOL
         )) != null) {
            return parseVariable();
         } else if (match(List.of(TokenType.COMMAND, TokenType.STOP)) != null) {
@@ -90,12 +90,14 @@ public class Parser {
         VariableNode variableNode;
         AstNode expressionNode;
         if (match(List.of(TokenType.VAR_INDEX)) != null) {
+            // first variable index, then expression
             List<Token> varIndexTokens = new ArrayList<Token>();
             varIndexTokens.add(currentToken);
             varIndexTokens.addAll(collectTokens(List.of(TokenType.VAR_INDEX)));
             variableNode = new VariableNode(varIndexTokens);
             expressionNode = parseExpression();
         } else {
+            // first expression, then variable index
             expressionNode = parseExpression();
             variableNode = new VariableNode(collectTokens(List.of(TokenType.VAR_INDEX)));
         }
@@ -135,8 +137,8 @@ public class Parser {
             return node;
 
         } else if (match(List.of(
-            TokenType.INT_ASSIGN, TokenType.FLOAT_ASSIGN,
-            TokenType.STRING_ASSIGN, TokenType.BOOL_ASSIGN
+            TokenType.INT, TokenType.FLOAT,
+            TokenType.STRING, TokenType.BOOL
         )) != null) {
             Token type = currentToken;
             return new LiteralNode(type, collectTokens(List.of(TokenType.ZERO, TokenType.ONE)));

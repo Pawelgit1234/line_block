@@ -6,16 +6,15 @@ import com.mojang.brigadier.Command;
 import com.mojang.brigadier.context.CommandContext;
 import com.spichka.lineblock.lang.exceptions.ExceptionUtils;
 import com.spichka.lineblock.lang.exceptions.LineBlockException;
+import com.spichka.lineblock.lang.interpreter.Interpreter;
 import com.spichka.lineblock.lang.lexer.Lexer;
 import com.spichka.lineblock.lang.lexer.Token;
 import com.spichka.lineblock.lang.parser.Parser;
-import com.spichka.lineblock.lang.parser.ast.AstNode;
+import com.spichka.lineblock.lang.parser.ast.BlockNode;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
@@ -46,10 +45,12 @@ public class RunCommand {
 
             LineBlock.LOGGER.info("2. Parser");
             Parser parser = new Parser(world, tokens);
-            AstNode root = parser.parse();
+            BlockNode root = parser.parse();
             LineBlock.LOGGER.info(root.toString());
 
             LineBlock.LOGGER.info("3. Interpreter");
+            Interpreter interpreter = new Interpreter(root, world);
+            interpreter.interpret();
         } catch (LineBlockException e) {
             LineBlock.LOGGER.error("Error: ", e);
             ExceptionUtils.showError(source, e);

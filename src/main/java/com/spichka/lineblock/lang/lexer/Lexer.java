@@ -32,10 +32,10 @@ public class Lexer {
                 token.type == TokenType.PRINT ||
                 token.type == TokenType.GOTO ||
                 token.type == TokenType.PLACEBLOCK ||
-                token.type == TokenType.INT_ASSIGN ||
-                token.type == TokenType.FLOAT_ASSIGN ||
-                token.type == TokenType.STRING_ASSIGN ||
-                token.type == TokenType.BOOL_ASSIGN ||
+                token.type == TokenType.INT ||
+                token.type == TokenType.FLOAT ||
+                token.type == TokenType.STRING ||
+                token.type == TokenType.BOOL ||
                 token.type == TokenType.USE_VAR ||
                 token.type == TokenType.IF
             ) {

@@ -5,8 +5,8 @@ import java.util.List;
 import com.spichka.lineblock.lang.lexer.Token;
 
 public class LiteralNode extends AstNode {
-    Token type; // str, int, float or bool
-    List<Token> bits;
+    public Token type; // str, int, float or bool
+    public List<Token> bits;
 
     public LiteralNode(Token type, List<Token> bits) {
         this.type = type;
