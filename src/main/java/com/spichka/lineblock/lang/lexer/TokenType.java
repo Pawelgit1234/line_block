@@ -55,7 +55,7 @@ public enum TokenType {
         BLOCK_TO_TYPE.put(Blocks.GRANITE, GT);
         BLOCK_TO_TYPE.put(Blocks.DIORITE, LT);
         BLOCK_TO_TYPE.put(Blocks.ANDESITE, GE);
-        BLOCK_TO_TYPE.put(Blocks.ANDESITE, LE);
+        BLOCK_TO_TYPE.put(Blocks.POLISHED_ANDESITE, LE);
 
         // math func
         BLOCK_TO_TYPE.put(Blocks.WHITE_GLAZED_TERRACOTTA, SIN);

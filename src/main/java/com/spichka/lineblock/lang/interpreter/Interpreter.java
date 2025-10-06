@@ -3,6 +3,7 @@ package com.spichka.lineblock.lang.interpreter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.spichka.lineblock.LineBlock;
 import com.spichka.lineblock.lang.exceptions.LineBlockException;
 import com.spichka.lineblock.lang.lexer.Token;
 import com.spichka.lineblock.lang.lexer.TokenType;
@@ -121,18 +122,36 @@ public class Interpreter {
                 throw new LineBlockException("Invalid bit in literal: " + bit.type, bit);
         }
 
+        binary.reverse();
+
         String binString = binary.toString();
-        int intValue = Integer.parseInt(binString, 2);
+        int bitCount = binString.length();
+
+        long longValue = Long.parseLong(binString, 2);
 
         switch (n.type.type) {
             case INT:
-                return new Value(Value.Type.INT, intValue);
+                return new Value(Value.Type.INT, (int) longValue);
             case FLOAT:
-                return new Value(Value.Type.FLOAT, (float) intValue);
+                if (bitCount != 32)
+                    throw new LineBlockException("FLOAT literal must have exactly 32 bits", n.type);
+                
+                int intBits = (int) longValue;
+                float floatValue = Float.intBitsToFloat(intBits);
+                return new Value(Value.Type.FLOAT, floatValue);
             case BOOL:
-                return new Value(Value.Type.BOOL, intValue != 0);
+                return new Value(Value.Type.BOOL, longValue != 0);
             case STRING:
-                return new Value(Value.Type.STRING, binString);
+                if (bitCount % 8 != 0)
+                    throw new LineBlockException("STRING literal bit length must be multiple of 8", n.type);
+
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < bitCount; i += 8) {
+                    String byteStr = binString.substring(i, i + 8);
+                    int byteVal = Integer.parseInt(byteStr, 2);
+                    sb.append((char) byteVal);
+                }
+                return new Value(Value.Type.STRING, sb.toString());
             default:
                 throw new LineBlockException("Unknown literal type: " + n.type.type, n.type);
         }
@@ -234,10 +253,10 @@ public class Interpreter {
 
             case DIV -> {
                 if (left.isNumber() && right.isNumber()) {
-                    float divisor = right.asFloat();
+                    float divisor = right.toFloat();
                     if (divisor == 0)
                         throw new LineBlockException("Division by zero", n.operator);
-                    return new Value(Value.Type.FLOAT, left.asFloat() / divisor);
+                    return new Value(Value.Type.FLOAT, left.toFloat() / divisor);
                 }
                 throw new LineBlockException("DIV expects numbers", n.operator);
             }
@@ -254,7 +273,7 @@ public class Interpreter {
 
             case POW -> {
                 if (left.isNumber() && right.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.pow(left.asFloat(), right.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.pow(left.toFloat(), right.toFloat()));
                 throw new LineBlockException("POW expects numbers", n.operator);
             }
 
@@ -317,22 +336,22 @@ public class Interpreter {
             }
             case GT -> {
                 if (left.isNumber() && right.isNumber())
-                    return new Value(Value.Type.BOOL, left.asFloat() > right.asFloat());
+                    return new Value(Value.Type.BOOL, left.toFloat() > right.toFloat());
                 throw new LineBlockException("GT expects numbers", n.operator);
             }
             case LT -> {
                 if (left.isNumber() && right.isNumber())
-                    return new Value(Value.Type.BOOL, left.asFloat() < right.asFloat());
+                    return new Value(Value.Type.BOOL, left.toFloat() < right.toFloat());
                 throw new LineBlockException("LT expects numbers", n.operator);
             }
             case GE -> {
                 if (left.isNumber() && right.isNumber())
-                    return new Value(Value.Type.BOOL, left.asFloat() >= right.asFloat());
+                    return new Value(Value.Type.BOOL, left.toFloat() >= right.toFloat());
                 throw new LineBlockException("GE expects numbers", n.operator);
             }
             case LE -> {
                 if (left.isNumber() && right.isNumber())
-                    return new Value(Value.Type.BOOL, left.asFloat() <= right.asFloat());
+                    return new Value(Value.Type.BOOL, left.toFloat() <= right.toFloat());
                 throw new LineBlockException("LE expects numbers", n.operator);
             }
 
@@ -438,32 +457,32 @@ public class Interpreter {
             // ------------------ Math ------------------
             case SIN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.sin(value.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.sin(value.toFloat()));
                 throw new LineBlockException("SIN expects INT or FLOAT", n.operator);
             }
             case COS -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.cos(value.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.cos(value.toFloat()));
                 throw new LineBlockException("COS expects INT or FLOAT", n.operator);
             }
             case TAN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.tan(value.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.tan(value.toFloat()));
                 throw new LineBlockException("TAN expects INT or FLOAT", n.operator);
             }
             case ASIN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.asin(value.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.asin(value.toFloat()));
                 throw new LineBlockException("ASIN expects INT or FLOAT", n.operator);
             }
             case ACOS -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.acos(value.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.acos(value.toFloat()));
                 throw new LineBlockException("ACOS expects INT or FLOAT", n.operator);
             }
             case ATAN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.atan(value.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.atan(value.toFloat()));
                 throw new LineBlockException("ATAN expects INT or FLOAT", n.operator);
             }
             case ABS -> {
@@ -475,12 +494,12 @@ public class Interpreter {
             }
             case CEIL -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.ceil(value.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.ceil(value.toFloat()));
                 throw new LineBlockException("CEIL expects INT or FLOAT", n.operator);
             }
             case FLOOR -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.floor(value.asFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.floor(value.toFloat()));
                 throw new LineBlockException("FLOOR expects INT or FLOAT", n.operator);
             }
 

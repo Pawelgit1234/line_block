@@ -1,5 +1,7 @@
 package com.spichka.lineblock.lang.interpreter;
 
+import com.spichka.lineblock.lang.exceptions.LineBlockException;
+
 public class Value {
     public enum Type { INT, FLOAT, STRING, BOOL }
 
@@ -23,6 +25,15 @@ public class Value {
     public float asFloat() { return (float) value; }
     public String asString() { return (String) value; }
     public boolean asBool() { return (boolean) value; }
+
+    public float toFloat() {
+        if (type == Type.FLOAT)
+            return (float) value;
+        else if (type == Type.INT)
+            return (float) (int) value;
+        
+        throw new LineBlockException("Cannot convert type to float", null);
+    }
 
     public boolean isNumber() {
         return type == Type.INT || type == Type.FLOAT;
