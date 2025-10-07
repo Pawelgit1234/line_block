@@ -39,6 +39,17 @@ public class Value {
         return type == Type.INT || type == Type.FLOAT;
     }
 
+    public boolean equalsValue(Value other) {
+        if (this.type != other.type) return false;
+        return switch (type) {
+            case INT -> ((int) value) == ((int) other.value);
+            case FLOAT -> Math.abs(((float) value) - ((float) other.value)) < 1e-6;
+            case BOOL -> ((boolean) value) == ((boolean) other.value);
+            case STRING -> ((String) value).equals((String) other.value);
+        };
+    }
+
+
     @Override
     public String toString() {
         return String.valueOf(value);

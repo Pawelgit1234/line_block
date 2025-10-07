@@ -6,4 +6,8 @@ public class LineBlockException extends RuntimeException {
     public LineBlockException(String msg, Token token) {
         super("Error at " + token.pos + ": " + msg);
     }
+
+    public LineBlockException(String msg) {
+        super("Error: " + msg);
+    }
 }

@@ -3,7 +3,6 @@ package com.spichka.lineblock.lang.interpreter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.spichka.lineblock.LineBlock;
 import com.spichka.lineblock.lang.exceptions.LineBlockException;
 import com.spichka.lineblock.lang.lexer.Token;
 import com.spichka.lineblock.lang.lexer.TokenType;
@@ -57,14 +56,14 @@ public class Interpreter {
         else if (node instanceof PlaceBlockNode n) return visitPlaceBlock(n);
         else if (node instanceof IfNode n) return visitIf(n);
         
-        throw new LineBlockException("Unkown AST node: " + node.getClass().getSimpleName(), null);
+        throw new LineBlockException("Unkown AST node: " + node.getClass().getSimpleName());
     }
 
     private Value visitConstant(ConstantNode n) {
         if (n.constant.type == TokenType.PI)
-            return new Value(Value.Type.FLOAT, 3.14);
+            return new Value(Value.Type.FLOAT, (float) 3.14);
         else if (n.constant.type == TokenType.E)
-            return new Value(Value.Type.FLOAT, 2.71);
+            return new Value(Value.Type.FLOAT, (float) 2.71);
         else
             throw new LineBlockException("Unknown constant: " + n.constant.type, n.constant);
     }
@@ -83,7 +82,7 @@ public class Interpreter {
             if (result instanceof GotoValue gotoVal) {
                 int target = i + gotoVal.targetIndex;
                 if (target < 0 || target >= n.statements.size())
-                    throw new LineBlockException("GOTO target out of bounds: " + target, null);
+                    throw new LineBlockException("GOTO target out of bounds: " + target);
                 i = target;
             } else {
                 i++; // next
@@ -104,7 +103,7 @@ public class Interpreter {
             else if (n.elseBranchNode != null)
                 visit(n.elseBranchNode);
         } else {
-            throw new LineBlockException("If expects BOOL expression as condition", null);
+            throw new LineBlockException("If expects BOOL expression as condition");
         }
 
         return null;
@@ -165,7 +164,7 @@ public class Interpreter {
         if (xValue.getType() != Value.Type.INT ||
             yValue.getType() != Value.Type.INT ||
             zValue.getType() != Value.Type.INT) {
-            throw new LineBlockException("PLACEBLOCK coordinates must be INT", null);
+            throw new LineBlockException("PLACEBLOCK coordinates must be INT");
         }
 
         BlockPos pos = new BlockPos(
@@ -180,16 +179,21 @@ public class Interpreter {
     }
 
     private Value visitBinaryOp(BinaryOpNode n) {
-        Value left = visit(n.left);
+        // for variables
+        VariableNode varNode = null;
+        Value left = null;
+
+        if (n.left instanceof VariableNode v)
+            varNode = v;
+        else
+            left = visit(n.left);
+
         Value right = visit(n.right);
         TokenType op = n.operator.type;
 
         switch (op) {
             // --- Assigns ---
             case INT, FLOAT, BOOL, STRING -> {
-                if (!(n.left instanceof VariableNode varNode))
-                    throw new LineBlockException("Left side of assignment must be a variable", n.operator);
-
                 Value.Type expectedType = switch (op) {
                     case INT -> Value.Type.INT;
                     case FLOAT -> Value.Type.FLOAT;
@@ -329,10 +333,10 @@ public class Interpreter {
 
             // --- Equation ---
             case EQ -> {
-                return new Value(Value.Type.BOOL, left.equals(right));
+                return new Value(Value.Type.BOOL, left.equalsValue(right));
             }
             case NE -> {
-                return new Value(Value.Type.BOOL, !left.equals(right));
+                return new Value(Value.Type.BOOL, !left.equalsValue(right));
             }
             case GT -> {
                 if (left.isNumber() && right.isNumber())
@@ -457,32 +461,32 @@ public class Interpreter {
             // ------------------ Math ------------------
             case SIN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.sin(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, Math.sin(value.toFloat()));
                 throw new LineBlockException("SIN expects INT or FLOAT", n.operator);
             }
             case COS -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.cos(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, Math.cos(value.toFloat()));
                 throw new LineBlockException("COS expects INT or FLOAT", n.operator);
             }
             case TAN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.tan(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, Math.tan(value.toFloat()));
                 throw new LineBlockException("TAN expects INT or FLOAT", n.operator);
             }
             case ASIN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.asin(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, Math.asin(value.toFloat()));
                 throw new LineBlockException("ASIN expects INT or FLOAT", n.operator);
             }
             case ACOS -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.acos(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, Math.acos(value.toFloat()));
                 throw new LineBlockException("ACOS expects INT or FLOAT", n.operator);
             }
             case ATAN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.atan(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, Math.atan(value.toFloat()));
                 throw new LineBlockException("ATAN expects INT or FLOAT", n.operator);
             }
             case ABS -> {
@@ -494,12 +498,12 @@ public class Interpreter {
             }
             case CEIL -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.ceil(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, Math.ceil(value.toFloat()));
                 throw new LineBlockException("CEIL expects INT or FLOAT", n.operator);
             }
             case FLOOR -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, (float) Math.floor(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, Math.floor(value.toFloat()));
                 throw new LineBlockException("FLOOR expects INT or FLOAT", n.operator);
             }
 
@@ -516,6 +520,6 @@ public class Interpreter {
                 return var.value;
         }
 
-        throw new LineBlockException("Variable with index " + index + " not found", null);
+        throw new LineBlockException("Variable with index " + index + " not found");
     }
 }
