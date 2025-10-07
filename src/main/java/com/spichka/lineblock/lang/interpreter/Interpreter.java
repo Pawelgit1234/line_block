@@ -61,9 +61,9 @@ public class Interpreter {
 
     private Value visitConstant(ConstantNode n) {
         if (n.constant.type == TokenType.PI)
-            return new Value(Value.Type.FLOAT, (float) 3.14);
+            return new Value(Value.Type.FLOAT, (float) Math.PI);
         else if (n.constant.type == TokenType.E)
-            return new Value(Value.Type.FLOAT, (float) 2.71);
+            return new Value(Value.Type.FLOAT, (float) Math.E);
         else
             throw new LineBlockException("Unknown constant: " + n.constant.type, n.constant);
     }
