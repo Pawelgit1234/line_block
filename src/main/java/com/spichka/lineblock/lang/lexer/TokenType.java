@@ -1,6 +1,7 @@
 package com.spichka.lineblock.lang.lexer;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -18,7 +19,7 @@ public enum TokenType {
     FIRST_ARGUMENT, SECOND_ARGUMENT, THRID_ARGUMENT, FOURTH_ARGUMENT, // argument
     INT, FLOAT, STRING, BOOL, VAR_INDEX, USE_VAR; // variables
 
-    private static final HashMap<Block, TokenType> BLOCK_TO_TYPE = new HashMap<>();
+    public static final Map<Block, TokenType> BLOCK_TO_TYPE = new LinkedHashMap<>();
 
     static {
         // math

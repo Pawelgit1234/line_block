@@ -3,7 +3,7 @@
 	"package": "com.spichka.lineblock.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ExampleMixin"
+		"BlockItemTooltipMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
