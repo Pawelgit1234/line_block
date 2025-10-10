@@ -49,7 +49,6 @@ public class Value {
         };
     }
 
-    @Override
     public String toString() {
         return String.valueOf(value);
     }

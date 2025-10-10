@@ -3,6 +3,7 @@ package com.spichka.lineblock.lang.interpreter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.spichka.lineblock.LineBlock;
 import com.spichka.lineblock.lang.exceptions.LineBlockException;
 import com.spichka.lineblock.lang.lexer.Token;
 import com.spichka.lineblock.lang.lexer.TokenType;
@@ -11,11 +12,13 @@ import com.spichka.lineblock.lang.parser.ast.BinaryOpNode;
 import com.spichka.lineblock.lang.parser.ast.BlockNode;
 import com.spichka.lineblock.lang.parser.ast.CommandNode;
 import com.spichka.lineblock.lang.parser.ast.ConstantNode;
+import com.spichka.lineblock.lang.parser.ast.ForNode;
 import com.spichka.lineblock.lang.parser.ast.IfNode;
 import com.spichka.lineblock.lang.parser.ast.LiteralNode;
 import com.spichka.lineblock.lang.parser.ast.PlaceBlockNode;
 import com.spichka.lineblock.lang.parser.ast.UnaryOpNode;
 import com.spichka.lineblock.lang.parser.ast.VariableNode;
+import com.spichka.lineblock.lang.parser.ast.WhileNode;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.CommandBlockBlockEntity;
@@ -30,7 +33,10 @@ public class Interpreter {
 
     private int deepness;
     private List<Variable> variables;
+
     private boolean stopRunning;
+    private boolean breakLoop;
+    private boolean continueLoop;
 
     public Interpreter(AstNode root, World world) {
         this.root = root;
@@ -39,6 +45,8 @@ public class Interpreter {
         this.deepness = 0;
         this.variables = new ArrayList<Variable>();
         this.stopRunning = false;
+        this.breakLoop = false;
+        this.continueLoop = false;
     }
 
     public void interpret() {
@@ -55,8 +63,10 @@ public class Interpreter {
         else if (node instanceof ConstantNode n) return visitConstant(n);
         else if (node instanceof PlaceBlockNode n) return visitPlaceBlock(n);
         else if (node instanceof IfNode n) return visitIf(n);
+        else if (node instanceof WhileNode n) return visitWhile(n);
+        else if (node instanceof ForNode n) return visitFor(n);
         
-        throw new LineBlockException("Unkown AST node: " + node.getClass().getSimpleName());
+        throw new LineBlockException("Unknown AST node: " + node.getClass().getSimpleName());
     }
 
     private Value visitConstant(ConstantNode n) {
@@ -71,22 +81,13 @@ public class Interpreter {
     private Value visitBlock(BlockNode n) {
         deepness++;
 
-        int i = 0;
-        while (i < n.statements.size()) {
-            if (stopRunning)
+        for (AstNode stmt : n.statements) {
+            if (continueLoop || breakLoop || stopRunning) {
+                continueLoop = false;
                 break;
-
-            AstNode statement = n.statements.get(i);
-            Value result = visit(statement);
-
-            if (result instanceof GotoValue gotoVal) {
-                int target = i + gotoVal.targetIndex;
-                if (target < 0 || target >= n.statements.size())
-                    throw new LineBlockException("GOTO target out of bounds: " + target);
-                i = target;
-            } else {
-                i++; // next
             }
+
+            visit(stmt);
         }
 
         deepness--;
@@ -105,6 +106,50 @@ public class Interpreter {
         } else {
             throw new LineBlockException("If expects BOOL expression as condition");
         }
+
+        return null;
+    }
+
+    private Value visitWhile(WhileNode n) {
+        while (true) {
+            Value conditionResult = visit(n.conditionNode);
+
+            if (conditionResult.getType() != Value.Type.BOOL)
+                throw new LineBlockException("WHILE expects BOOL expression as condition");
+            
+            LineBlock.LOGGER.info("continueLoop=" + continueLoop);
+            if (!conditionResult.asBool() || breakLoop || stopRunning) {
+                breakLoop = false;
+                break;
+            }
+
+            visit(n.bodyNode);
+        }
+
+        return null;
+    }
+
+    private Value visitFor(ForNode n) {
+        deepness++;
+        visit(n.initializerNode);
+
+        while (true) {
+            Value conditionResult = visit(n.conditionNode);
+
+            if (conditionResult.getType() != Value.Type.BOOL)
+                throw new LineBlockException("FOR expects BOOL expression as condition");
+
+            if (!conditionResult.asBool() || breakLoop || stopRunning) {
+                breakLoop = false;
+                break;
+            }
+            
+            visit(n.bodyNode);
+            visit(n.incrementNode);
+        }
+
+        deepness--;
+        variables.removeIf(v -> v.deepness >= deepness);
 
         return null;
     }
@@ -179,47 +224,47 @@ public class Interpreter {
     }
 
     private Value visitBinaryOp(BinaryOpNode n) {
-        // for variables
-        VariableNode varNode = null;
-        Value left = null;
-
-        if (n.left instanceof VariableNode v)
-            varNode = v;
-        else
-            left = visit(n.left);
-
-        Value right = visit(n.right);
         TokenType op = n.operator.type;
 
-        switch (op) {
-            // --- Assigns ---
-            case INT, FLOAT, BOOL, STRING -> {
-                Value.Type expectedType = switch (op) {
-                    case INT -> Value.Type.INT;
-                    case FLOAT -> Value.Type.FLOAT;
-                    case BOOL -> Value.Type.BOOL;
-                    case STRING -> Value.Type.STRING;
-                    default -> throw new LineBlockException("Unknown assign type: " + op, n.operator);
-                };
+        // --- Assigns ---
+        if (op == TokenType.INT || op == TokenType.FLOAT || op == TokenType.BOOL || op == TokenType.STRING) {
+            if (!(n.left instanceof VariableNode varNode))
+                throw new LineBlockException("Left side of assignment must be a variable", n.operator);
 
-                Value finalValue = castValue(right, expectedType, n.operator);
+            Value right = visit(n.right);
 
-                int index = varNode.index.size();
-                boolean updated = false;
-                for (Variable v : variables) {
-                    if (v.index == index) {
-                        v.value = finalValue;
-                        updated = true;
-                        break;
-                    }
+            Value.Type expectedType = switch (op) {
+                case INT -> Value.Type.INT;
+                case FLOAT -> Value.Type.FLOAT;
+                case BOOL -> Value.Type.BOOL;
+                case STRING -> Value.Type.STRING;
+                default -> throw new LineBlockException("Unknown assign type: " + op, n.operator);
+            };
+
+            Value finalValue = castValue(right, expectedType, n.operator);
+
+            int index = varNode.index.size();
+            boolean updated = false;
+
+            for (Variable v : variables) {
+                if (v.index == index) {
+                    v.value = finalValue;
+                    updated = true;
+                    break;
                 }
-
-                if (!updated)
-                    variables.add(new Variable(index, finalValue, deepness));
-
-                return finalValue;
             }
 
+            if (!updated)
+                variables.add(new Variable(index, finalValue, deepness));
+
+            return finalValue;
+        }
+
+        // --- All other binary operations ---
+        Value left = visit(n.left);
+        Value right = visit(n.right);
+
+        switch (op) {
             // --- Math ---
             case PLUS -> {
                 if (left.isNumber() && right.isNumber()) {
@@ -405,6 +450,10 @@ public class Interpreter {
             executor.execute(world);
         } else if (n.token.type == TokenType.STOP) {
             stopRunning = true;
+        } else if (n.token.type == TokenType.BREAK) {
+            breakLoop = true;
+        } else if (n.token.type == TokenType.CONTINUE) {
+            continueLoop = true;
         }
 
         return null;
@@ -421,13 +470,6 @@ public class Interpreter {
                     player.sendMessage(Text.literal(value.toString()), false);
                 }
                 return null;
-            }
-
-            case GOTO -> {
-                if (value.getType() != Value.Type.INT)
-                    throw new LineBlockException("GOTO expects INT", n.operator);
-                int target = value.asInt();
-                return new GotoValue(target);
             }
 
             // ------------------ Numbers ------------------
@@ -510,7 +552,6 @@ public class Interpreter {
             default -> throw new LineBlockException("Unknown unary operator: " + op, n.operator);
         }
     }
-
 
     private Value visitVariable(VariableNode n) {
         int index = n.index.size();

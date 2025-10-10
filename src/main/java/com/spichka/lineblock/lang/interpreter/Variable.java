@@ -10,4 +10,8 @@ public class Variable {
         this.value = value;
         this.deepness = deepness;
     }
+
+    public String toString() {
+        return "Variable{" + index + ", " + value + ", " + deepness + "}";
+    }
 }

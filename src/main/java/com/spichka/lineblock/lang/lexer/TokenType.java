@@ -13,8 +13,8 @@ public enum TokenType {
     EQ, NE, GT, LT, GE, LE, // equation
     SIN, COS, TAN, ASIN, ACOS, ATAN, ABS, CEIL, FLOOR, // math func
     PI, E, // constants
-    COMMAND, STOP, PRINT, GOTO, PLACEBLOCK, // other
-    IF, BRANCH_END, // if
+    COMMAND, STOP, PRINT, PLACEBLOCK, // other
+    IF, WHILE, FOR, BREAK, CONTINUE, BLOCK_END, // constructions
     FIRST_ARGUMENT, SECOND_ARGUMENT, THRID_ARGUMENT, FOURTH_ARGUMENT, // argument
     INT, FLOAT, STRING, BOOL, VAR_INDEX, USE_VAR; // variables
 
@@ -75,13 +75,16 @@ public enum TokenType {
         // other
         BLOCK_TO_TYPE.put(Blocks.COMMAND_BLOCK, COMMAND);
         BLOCK_TO_TYPE.put(Blocks.DARK_PRISMARINE, PRINT);
-        BLOCK_TO_TYPE.put(Blocks.OBSIDIAN, GOTO);
         BLOCK_TO_TYPE.put(Blocks.TNT, STOP);
         BLOCK_TO_TYPE.put(Blocks.PISTON, PLACEBLOCK);
 
-        // if
+        // constructions
         BLOCK_TO_TYPE.put(Blocks.OAK_WOOD, IF);
-        BLOCK_TO_TYPE.put(Blocks.STRIPPED_OAK_WOOD, BRANCH_END);
+        BLOCK_TO_TYPE.put(Blocks.BIRCH_WOOD, WHILE);
+        BLOCK_TO_TYPE.put(Blocks.MANGROVE_WOOD, FOR);
+        BLOCK_TO_TYPE.put(Blocks.OBSIDIAN, BREAK);
+        BLOCK_TO_TYPE.put(Blocks.CRYING_OBSIDIAN, CONTINUE);
+        BLOCK_TO_TYPE.put(Blocks.STRIPPED_OAK_WOOD, BLOCK_END);
 
         // arguments
         BLOCK_TO_TYPE.put(Blocks.GLASS, FIRST_ARGUMENT);

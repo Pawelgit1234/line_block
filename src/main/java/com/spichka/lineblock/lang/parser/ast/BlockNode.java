@@ -18,7 +18,7 @@ public class BlockNode extends AstNode {
     public String toString() {
         String str = "Block(";
         for (AstNode node : statements) {
-            str += node + "\n";
+            str += node + ",\n";
         }
         str += ')';
         return str;

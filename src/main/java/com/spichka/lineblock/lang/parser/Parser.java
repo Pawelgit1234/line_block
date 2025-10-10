@@ -11,11 +11,13 @@ import com.spichka.lineblock.lang.parser.ast.BinaryOpNode;
 import com.spichka.lineblock.lang.parser.ast.BlockNode;
 import com.spichka.lineblock.lang.parser.ast.CommandNode;
 import com.spichka.lineblock.lang.parser.ast.ConstantNode;
+import com.spichka.lineblock.lang.parser.ast.ForNode;
 import com.spichka.lineblock.lang.parser.ast.IfNode;
 import com.spichka.lineblock.lang.parser.ast.LiteralNode;
 import com.spichka.lineblock.lang.parser.ast.PlaceBlockNode;
 import com.spichka.lineblock.lang.parser.ast.UnaryOpNode;
 import com.spichka.lineblock.lang.parser.ast.VariableNode;
+import com.spichka.lineblock.lang.parser.ast.WhileNode;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -70,15 +72,19 @@ public class Parser {
             TokenType.FLOAT, TokenType.BOOL
         )) != null) {
            return parseVariable();
-        } else if (match(List.of(TokenType.COMMAND, TokenType.STOP)) != null) {
+        } else if (match(List.of(TokenType.COMMAND, TokenType.STOP, TokenType.BREAK, TokenType.CONTINUE)) != null) {
             return new CommandNode(currentToken);
-        } else if (match(List.of(TokenType.PRINT, TokenType.GOTO)) != null) {
+        } else if (match(List.of(TokenType.PRINT)) != null) {
             Token operator = currentToken;
             return new UnaryOpNode(operator, parseExpression());
         } else if (match(List.of(TokenType.PLACEBLOCK)) != null) {
             return parsePlaceBlock();
         } else if (match(List.of(TokenType.IF)) != null) {
             return parseIf();
+        } else if (match(List.of(TokenType.WHILE)) != null) {
+            return parseWhile();
+        } else if (match(List.of(TokenType.FOR)) != null) {
+            return parseFor();
         }
 
         throw new LineBlockException("Wrong block", currentToken);
@@ -141,7 +147,12 @@ public class Parser {
             TokenType.STRING, TokenType.BOOL
         )) != null) {
             Token type = currentToken;
-            return new LiteralNode(type, collectTokens(List.of(TokenType.ZERO, TokenType.ONE)));
+            LiteralNode literal = new LiteralNode(type, collectTokens(List.of(TokenType.ZERO, TokenType.ONE)));
+
+            if (literal.bits.size() == 0)
+                throw new LineBlockException("No bits for literal", type);
+
+            return literal;
 
         } else if (match(List.of(TokenType.USE_VAR)) != null) {
             return new VariableNode(collectTokens(List.of(TokenType.VAR_INDEX)));
@@ -216,10 +227,10 @@ public class Parser {
         return new PlaceBlockNode(placeX, placeY, placeZ, world.getBlockState(pos).getBlock());
     }
 
-    private AstNode parseIfBranche() {
+    private AstNode parseBlock() {
         BlockNode root = new BlockNode();
 
-        while (match(List.of(TokenType.BRANCH_END)) == null) {
+        while (match(List.of(TokenType.BLOCK_END)) == null) {
             AstNode codeLineNode = parseLine();
             root.addStatement(codeLineNode);
         }
@@ -241,8 +252,8 @@ public class Parser {
 
                 switch (argToken.type) {
                     case FIRST_ARGUMENT -> conditionNode = parseExpression();
-                    case SECOND_ARGUMENT -> thenBranchNode = parseIfBranche();
-                    case THRID_ARGUMENT -> elseBranchNode = parseIfBranche();
+                    case SECOND_ARGUMENT -> thenBranchNode = parseBlock();
+                    case THRID_ARGUMENT -> elseBranchNode = parseBlock();
                     default -> {}
                 }
             } else {
@@ -251,5 +262,67 @@ public class Parser {
         }
 
         return new IfNode(conditionNode, thenBranchNode, elseBranchNode);
+    }
+
+    private AstNode parseWhile() {
+        Token whileToken = currentToken;
+
+        AstNode conditionNode = null;
+        AstNode bodyNode = null;
+
+        for (int i = 0; i < 2; i++) {
+            if (match(List.of(
+                TokenType.FIRST_ARGUMENT, TokenType.SECOND_ARGUMENT
+            )) != null) {
+                Token argToken = currentToken;
+
+                switch (argToken.type) {
+                    case FIRST_ARGUMENT -> conditionNode = parseExpression();
+                    case SECOND_ARGUMENT -> bodyNode = parseBlock();
+                    default -> {}
+                }
+            } else {
+                throw new LineBlockException("WHILE expects 2 arguments", whileToken);
+            }
+        }
+
+        return new WhileNode(conditionNode, bodyNode);
+    }
+
+    private AstNode parseFor() {
+        Token forToken = currentToken;
+
+        AstNode initNode = null;
+        AstNode conditionNode = null;
+        AstNode incrementNode = null;
+        AstNode bodyNode = null;
+
+        for (int i = 0; i < 4; i++) {
+            if (match(List.of(
+                TokenType.FIRST_ARGUMENT, TokenType.SECOND_ARGUMENT,
+                TokenType.THRID_ARGUMENT, TokenType.FOURTH_ARGUMENT
+            )) != null) {
+                Token argToken = currentToken;
+
+                switch (argToken.type) {
+                    case FIRST_ARGUMENT -> {
+                        require(List.of(TokenType.INT, TokenType.FLOAT, TokenType.BOOL, TokenType.STRING));
+                        initNode = parseVariable();
+                    }
+                    case SECOND_ARGUMENT -> conditionNode = parseExpression();
+                    case THRID_ARGUMENT -> {
+                        // i = i + 1, because no i++
+                        require(List.of(TokenType.INT, TokenType.FLOAT, TokenType.BOOL, TokenType.STRING));
+                        incrementNode = parseVariable();
+                    }
+                    case FOURTH_ARGUMENT -> bodyNode = parseBlock();
+                    default -> {}
+                }
+            } else {
+                throw new LineBlockException("FOR expects 4 arguments", forToken);
+            }
+        }
+
+        return new ForNode(initNode, conditionNode, incrementNode, bodyNode);
     }
 }

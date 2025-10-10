@@ -30,14 +30,17 @@ public class Lexer {
 
             if (
                 token.type == TokenType.PRINT ||
-                token.type == TokenType.GOTO ||
                 token.type == TokenType.PLACEBLOCK ||
+
                 token.type == TokenType.INT ||
                 token.type == TokenType.FLOAT ||
                 token.type == TokenType.STRING ||
                 token.type == TokenType.BOOL ||
                 token.type == TokenType.USE_VAR ||
-                token.type == TokenType.IF
+
+                token.type == TokenType.IF ||
+                token.type == TokenType.WHILE ||
+                token.type == TokenType.FOR
             ) {
                 for (Direction dir : Direction.values()) {
                     if (dir == direction || dir == direction.getOpposite())
