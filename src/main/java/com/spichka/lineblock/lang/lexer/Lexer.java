@@ -45,11 +45,12 @@ public class Lexer {
                 for (Direction dir : Direction.values()) {
                     if (dir == direction || dir == direction.getOpposite())
                         continue;
+
                     BlockPos neighborPos = token.pos.offset(dir);
                     BlockState state = world.getBlockState(neighborPos);
                     TokenType neighborTokenType = TokenType.fromBlock(state.getBlock());
 
-                    if (neighborTokenType != null) {
+                    if (neighborTokenType != null || state.getBlock() == Blocks.OBSERVER) {
                         Lexer lexer = new Lexer(world, neighborPos, dir);
                         tokens.addAll(lexer.tokenize());
                     }

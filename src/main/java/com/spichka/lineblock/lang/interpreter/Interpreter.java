@@ -3,7 +3,6 @@ package com.spichka.lineblock.lang.interpreter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.spichka.lineblock.LineBlock;
 import com.spichka.lineblock.lang.exceptions.LineBlockException;
 import com.spichka.lineblock.lang.lexer.Token;
 import com.spichka.lineblock.lang.lexer.TokenType;
@@ -117,7 +116,6 @@ public class Interpreter {
             if (conditionResult.getType() != Value.Type.BOOL)
                 throw new LineBlockException("WHILE expects BOOL expression as condition");
             
-            LineBlock.LOGGER.info("continueLoop=" + continueLoop);
             if (!conditionResult.asBool() || breakLoop || stopRunning) {
                 breakLoop = false;
                 break;
