@@ -160,6 +160,9 @@ Some functions have multiple arguments (`if`, `for`, `while`, `placeblock`).
 | Chiseled Stone Bricks | `use_var` | Access existing variable |
 | Smooth Stone | `var_index` | Variable index reference |
 
+## Rules
+Never write `VAR(1) = 1 + VAR(1)`. Parser can interpret it as `VAR(0) = 1 + VAR(2)`. Instead of this write `VAR(1) = VAR(1) + 1`.
+
 ## 🧠 Example
 
 Example script to **draw a sine wave** using `placeblock` and `for`:
