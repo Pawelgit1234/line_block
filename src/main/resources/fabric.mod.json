@@ -2,14 +2,14 @@
 	"schemaVersion": 1,
 	"id": "lineblock",
 	"version": "${version}",
-	"name": "Line Block",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "LineBlock",
+	"description": "A visual programming mod that lets you write and run code using Minecraft blocks.",
 	"authors": [
-		"Me!"
+		"Spichka"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://www.youtube.com/@Spichka_",
+		"sources": "https://github.com/Pawelgit1234/line_block"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/lineblock/icon.png",
