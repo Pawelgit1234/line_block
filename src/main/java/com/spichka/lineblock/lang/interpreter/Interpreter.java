@@ -267,7 +267,7 @@ public class Interpreter {
             case PLUS -> {
                 if (left.isNumber() && right.isNumber()) {
                     if (left.getType() == Value.Type.FLOAT || right.getType() == Value.Type.FLOAT)
-                        return new Value(Value.Type.FLOAT, left.asFloat() + right.asFloat());
+                        return new Value(Value.Type.FLOAT, left.toFloat() + right.toFloat());
                     else
                         return new Value(Value.Type.INT, left.asInt() + right.asInt());
                 } else if (left.getType() == Value.Type.STRING || right.getType() == Value.Type.STRING) {
@@ -279,7 +279,7 @@ public class Interpreter {
             case MINUS -> {
                 if (left.isNumber() && right.isNumber()) {
                     if (left.getType() == Value.Type.FLOAT || right.getType() == Value.Type.FLOAT)
-                        return new Value(Value.Type.FLOAT, left.asFloat() - right.asFloat());
+                        return new Value(Value.Type.FLOAT, left.toFloat() - right.toFloat());
                     else
                         return new Value(Value.Type.INT, left.asInt() - right.asInt());
                 }
@@ -289,11 +289,13 @@ public class Interpreter {
             case MUL -> {
                 if (left.isNumber() && right.isNumber()) {
                     if (left.getType() == Value.Type.FLOAT || right.getType() == Value.Type.FLOAT)
-                        return new Value(Value.Type.FLOAT, left.asFloat() * right.asFloat());
+                        return new Value(Value.Type.FLOAT, left.toFloat() * right.toFloat());
                     else
                         return new Value(Value.Type.INT, left.asInt() * right.asInt());
                 } else if (left.getType() == Value.Type.STRING && right.getType() == Value.Type.INT) {
                     return new Value(Value.Type.STRING, left.asString().repeat(Math.max(0, right.asInt())));
+                } else if (right.getType() == Value.Type.STRING && left.getType() == Value.Type.INT) {
+                    return new Value(Value.Type.STRING, right.asString().repeat(Math.max(0, left.asInt())));
                 }
                 throw new LineBlockException("MUL expects numbers or (string * int)", n.operator);
             }
@@ -311,7 +313,7 @@ public class Interpreter {
             case MOD -> {
                 if (left.isNumber() && right.isNumber()) {
                     if (left.getType() == Value.Type.FLOAT || right.getType() == Value.Type.FLOAT)
-                        return new Value(Value.Type.FLOAT, left.asFloat() % right.asFloat());
+                        return new Value(Value.Type.FLOAT, left.toFloat() % right.toFloat());
                     else
                         return new Value(Value.Type.INT, left.asInt() % right.asInt());
                 }
@@ -427,7 +429,7 @@ public class Interpreter {
                 throw new LineBlockException("Cannot convert " + v.getType() + " to FLOAT", op);
             }
             case BOOL -> {
-                if (v.isNumber()) yield new Value(Value.Type.BOOL, v.asFloat() != 0);
+                if (v.isNumber()) yield new Value(Value.Type.BOOL, v.toFloat() != 0);
                 if (v.getType() == Value.Type.STRING)
                     yield new Value(Value.Type.BOOL, !v.asString().isEmpty());
                 throw new LineBlockException("Cannot convert " + v.getType() + " to BOOL", op);
@@ -501,32 +503,32 @@ public class Interpreter {
             // ------------------ Math ------------------
             case SIN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, Math.sin(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.sin(value.toFloat()));
                 throw new LineBlockException("SIN expects INT or FLOAT", n.operator);
             }
             case COS -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, Math.cos(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.cos(value.toFloat()));
                 throw new LineBlockException("COS expects INT or FLOAT", n.operator);
             }
             case TAN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, Math.tan(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.tan(value.toFloat()));
                 throw new LineBlockException("TAN expects INT or FLOAT", n.operator);
             }
             case ASIN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, Math.asin(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.asin(value.toFloat()));
                 throw new LineBlockException("ASIN expects INT or FLOAT", n.operator);
             }
             case ACOS -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, Math.acos(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.acos(value.toFloat()));
                 throw new LineBlockException("ACOS expects INT or FLOAT", n.operator);
             }
             case ATAN -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, Math.atan(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.atan(value.toFloat()));
                 throw new LineBlockException("ATAN expects INT or FLOAT", n.operator);
             }
             case ABS -> {
@@ -538,12 +540,12 @@ public class Interpreter {
             }
             case CEIL -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, Math.ceil(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.ceil(value.toFloat()));
                 throw new LineBlockException("CEIL expects INT or FLOAT", n.operator);
             }
             case FLOOR -> {
                 if (value.isNumber())
-                    return new Value(Value.Type.FLOAT, Math.floor(value.toFloat()));
+                    return new Value(Value.Type.FLOAT, (float) Math.floor(value.toFloat()));
                 throw new LineBlockException("FLOOR expects INT or FLOAT", n.operator);
             }
 
