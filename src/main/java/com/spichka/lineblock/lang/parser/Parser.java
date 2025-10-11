@@ -306,13 +306,13 @@ public class Parser {
 
                 switch (argToken.type) {
                     case FIRST_ARGUMENT -> {
-                        require(List.of(TokenType.INT, TokenType.FLOAT, TokenType.BOOL, TokenType.STRING));
+                        require(List.of(TokenType.INT, TokenType.FLOAT, TokenType.STRING, TokenType.BOOL));
                         initNode = parseVariable();
                     }
                     case SECOND_ARGUMENT -> conditionNode = parseExpression();
                     case THRID_ARGUMENT -> {
+                        require(List.of(TokenType.INT, TokenType.FLOAT, TokenType.STRING, TokenType.BOOL));
                         // i = i + 1, because no i++
-                        require(List.of(TokenType.INT, TokenType.FLOAT, TokenType.BOOL, TokenType.STRING));
                         incrementNode = parseVariable();
                     }
                     case FOURTH_ARGUMENT -> bodyNode = parseBlock();
