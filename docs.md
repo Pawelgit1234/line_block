@@ -138,8 +138,10 @@ You need bits to type values in.
 
 ## 🪟 Function Arguments
 
-| Block | Argument | Description |
-|--------|------------|-------------|
+Some functions have multiple arguments (`if`, `for`, `while`, `placeblock`).
+
+| Block | Argument |
+|--------|------------|
 | Glass | Argument 1 |
 | Tinted Glass | Argument 2 |
 | Red Stained Glass | Argument 3 |
