@@ -163,7 +163,7 @@ You need bits to type values in.
 Example script to **draw a sine wave** using `placeblock` and `for`:
 
 ### Script
-[img](img/img1.png)
+![img](img/img1.png)
 
 ### Result
-[img](img/img2.png)
+![img](img/img2.png)

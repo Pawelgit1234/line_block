@@ -10,5 +10,8 @@ With LineBlock, you can:
 
 This mod is perfect for experimenting with programming logic directly in Minecraft — without typing a single line of code.
 
+## Script example
+![img](img/img1.png)
+
 ## Docs
 Read the [docs](docs.md)!
