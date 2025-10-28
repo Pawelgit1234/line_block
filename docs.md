@@ -16,11 +16,48 @@ All LineBlock-related blocks are grouped in their own **creative tab** —
 Every LineBlock-compatible block now shows a **tooltip** describing its purpose and **value type** (e.g., `INT`, `FLOAT`, `BOOL`, etc.).  
 This helps you quickly identify what each block does when hovering over it in the inventory.
  
+### 🧩 New Command
+Run your in-world scripts instantly with the **`/run`** command:
+
+```
+/run <x> <y> <z>
+```
+
+This command starts script execution from the block located at the specified coordinates —
+allowing you to test or trigger LineBlock programs without manual activation.
+
 ---
 
 ## 👁️ Direction with Observer  
 Script direction is determined using **Observers**.  
 They define the **execution direction** — scripts run and place blocks relative to where the Observer is facing.
+
+---
+
+## 🔢 Bits
+
+You need bits to type values in.
+
+| Block | Value | Description |
+|--------|--------|-------------|
+| White Wool | `0` | Zero |
+| Black Wool | `1` | One |
+
+## 💾 Variables
+
+| Block | Type | Description |
+|--------|------|-------------|
+| Diamond Block | `INT` | Integer variable |
+| Gold Block | `FLOAT` | Floating-point variable |
+| Iron Block | `STRING` | String variable |
+| Emerald Block | `BOOL` | Boolean variable |
+| Chiseled Stone Bricks | `use_var` | Access existing variable |
+| Smooth Stone | `var_index` | Variable index reference |
+
+![img](img/img3.png)
+
+### Caution!
+Never write `VAR(1) = 1 + VAR(1)`. Parser can interpret it as `VAR(0) = 1 + VAR(2)`. Instead of this write `VAR(1) = VAR(1) + 1` or use brackets.
 
 ---
 
@@ -49,17 +86,6 @@ They define the **execution direction** — scripts run and place blocks relativ
 | Deepslate Lapis Ore | `~` | Bitwise NOT |
 | Deepslate Redstone Ore | `<<` | Shift left |
 | Deepslate Emerald Ore | `>>` | Shift right |
-
----
-
-## 🔢 Bits
-
-You need bits to type values in.
-
-| Block | Value | Description |
-|--------|--------|-------------|
-| White Wool | `0` | Zero |
-| Black Wool | `1` | One |
 
 ---
 
@@ -112,6 +138,19 @@ You need bits to type values in.
 
 ---
 
+## 🪟 Function Arguments
+
+Some functions have multiple arguments (`if`, `for`, `while`, `placeblock`).
+
+| Block | Argument |
+|--------|------------|
+| Glass | Argument 1 |
+| Tinted Glass | Argument 2 |
+| Red Stained Glass | Argument 3 |
+| Lime Stained Glass | Argument 4 |
+
+---
+
 ## ⚡ Commands
 
 | Block | Command | Description |
@@ -120,6 +159,8 @@ You need bits to type values in.
 | Dark Prismarine | `print` | Prints a value to the console |
 | TNT | `stop` | Stops script execution |
 | Piston | `placeblock` | Places a block in the world |
+
+![img](img/img4.png)
 
 ---
 
@@ -134,34 +175,13 @@ You need bits to type values in.
 | Crying Obsidian | `continue` | Skip to next loop iteration |
 | Stripped Oak Wood | `block_end` | Ends a code block |
 
----
+![img](img/img5.png)
 
-## 🪟 Function Arguments
+![img](img/img6.png)
 
-Some functions have multiple arguments (`if`, `for`, `while`, `placeblock`).
-
-| Block | Argument |
-|--------|------------|
-| Glass | Argument 1 |
-| Tinted Glass | Argument 2 |
-| Red Stained Glass | Argument 3 |
-| Lime Stained Glass | Argument 4 |
+![img](img/img7.png)
 
 ---
-
-## 💾 Variables
-
-| Block | Type | Description |
-|--------|------|-------------|
-| Diamond Block | `INT` | Integer variable |
-| Gold Block | `FLOAT` | Floating-point variable |
-| Iron Block | `STRING` | String variable |
-| Emerald Block | `BOOL` | Boolean variable |
-| Chiseled Stone Bricks | `use_var` | Access existing variable |
-| Smooth Stone | `var_index` | Variable index reference |
-
-## Rules
-Never write `VAR(1) = 1 + VAR(1)`. Parser can interpret it as `VAR(0) = 1 + VAR(2)`. Instead of this write `VAR(1) = VAR(1) + 1`.
 
 ## 🧠 Example
 

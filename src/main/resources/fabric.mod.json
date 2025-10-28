@@ -36,5 +36,13 @@
 	},
 	"suggests": {
 		"another-mod": "*"
+	},
+	"custom": {
+		"modmenu": {
+			"links": {
+				"modmenu.youtube": "https://www.youtube.com/@Spichka_"
+			},
+			"update_checker": true
+		}
 	}
 }
